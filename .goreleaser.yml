@@ -1,5 +1,5 @@
 builds:
-  - binary: mackerel-plugin-sample
+  - binary: mackerel-plugin-postqueue
     goos:
       - linux
     goarch:
@@ -10,5 +10,5 @@ archives:
     name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
 release:
   github:
-    owner: mackerelio
-    name: mackerel-plugin-sample
+    owner: sugy
+    name: mackerel-plugin-postqueue
