@@ -3,10 +3,11 @@ package mppostqueue
 import (
 	"flag"
 	"math/rand"
-	"strings"
 	"time"
 
 	mp "github.com/mackerelio/go-mackerel-plugin"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 // Use go-mackerel-plugin to create this postqueue plugin.
@@ -28,7 +29,7 @@ func (p *PostqueuePlugin) MetricKeyPrefix() string {
 
 // GraphDefinition interface for mackerelplugin
 func (p *PostqueuePlugin) GraphDefinition() map[string]mp.Graphs {
-	labelPrefix := strings.Title(p.Prefix)
+	labelPrefix := cases.Title(language.Und, cases.NoLower).String(p.Prefix)
 	return map[string]mp.Graphs{
 		"dice": {
 			Label: labelPrefix + " Dice Value",
