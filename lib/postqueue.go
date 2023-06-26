@@ -10,10 +10,6 @@ import (
 	"golang.org/x/text/language"
 )
 
-// Use go-mackerel-plugin to create this postqueue plugin.
-// If you want to know how to use go-mackerel-plugin library,
-// see https://github.com/mackerelio/go-mackerel-plugin .
-
 // PostqueuePlugin mackerel plugin
 type PostqueuePlugin struct {
 	Prefix string
