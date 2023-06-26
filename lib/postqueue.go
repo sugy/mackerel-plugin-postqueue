@@ -1,4 +1,4 @@
-package mpsample
+package mppostqueue
 
 import (
 	"flag"
@@ -9,25 +9,25 @@ import (
 	mp "github.com/mackerelio/go-mackerel-plugin"
 )
 
-// Use go-mackerel-plugin to create this sample plugin.
+// Use go-mackerel-plugin to create this postqueue plugin.
 // If you want to know how to use go-mackerel-plugin library,
 // see https://github.com/mackerelio/go-mackerel-plugin .
 
-// SamplePlugin mackerel plugin
-type SamplePlugin struct {
+// PostqueuePlugin mackerel plugin
+type PostqueuePlugin struct {
 	Prefix string
 }
 
 // MetricKeyPrefix interface for PluginWithPrefix
-func (p *SamplePlugin) MetricKeyPrefix() string {
+func (p *PostqueuePlugin) MetricKeyPrefix() string {
 	if p.Prefix == "" {
-		p.Prefix = "sample"
+		p.Prefix = "postqueue"
 	}
 	return p.Prefix
 }
 
 // GraphDefinition interface for mackerelplugin
-func (p *SamplePlugin) GraphDefinition() map[string]mp.Graphs {
+func (p *PostqueuePlugin) GraphDefinition() map[string]mp.Graphs {
 	labelPrefix := strings.Title(p.Prefix)
 	return map[string]mp.Graphs{
 		"dice": {
@@ -42,7 +42,7 @@ func (p *SamplePlugin) GraphDefinition() map[string]mp.Graphs {
 }
 
 // FetchMetrics interface for mackerelplugin
-func (p *SamplePlugin) FetchMetrics() (map[string]float64, error) {
+func (p *PostqueuePlugin) FetchMetrics() (map[string]float64, error) {
 	rand.Seed(time.Now().UnixNano())
 	metrics := map[string]float64{
 		"d6":  float64(rand.Intn(6) + 1),
@@ -56,7 +56,7 @@ func Do() {
 	optPrefix := flag.String("metric-key-prefix", "", "Metric key prefix")
 	flag.Parse()
 
-	plugin := mp.NewMackerelPlugin(&SamplePlugin{
+	plugin := mp.NewMackerelPlugin(&PostqueuePlugin{
 		Prefix: *optPrefix,
 	})
 	plugin.Run()

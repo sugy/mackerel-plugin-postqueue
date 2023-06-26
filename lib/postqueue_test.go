@@ -1,11 +1,11 @@
-package mpsample
+package mppostqueue
 
 import "testing"
 
 func TestFetchMetrics(t *testing.T) {
-	sample := &SamplePlugin{}
+	postqueue := &postqueuePlugin{}
 
-	ret, err := sample.FetchMetrics()
+	ret, err := postqueue.FetchMetrics()
 
 	if err != nil {
 		t.Errorf("FetchMetrics returns error")

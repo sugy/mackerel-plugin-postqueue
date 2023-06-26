@@ -1,7 +1,7 @@
 package main
 
-import "github.com/mackerelio/mackerel-plugin-sample/lib"
+import mppostqueue "github.com/sugy/mackerel-plugin-postqueue/lib"
 
 func main() {
-	mpsample.Do()
+	mppostqueue.Do()
 }

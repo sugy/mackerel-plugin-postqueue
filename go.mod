@@ -1,4 +1,4 @@
-module github.com/mackerelio/mackerel-plugin-sample
+module github.com/sugy/mackerel-plugin-postqueue
 
 go 1.18
 
