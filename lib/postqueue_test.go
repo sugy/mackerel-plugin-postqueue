@@ -99,6 +99,32 @@ func TestPostqueuePlugin_FetchMetrics(t *testing.T) {
 				"queue":                 12,
 			},
 		},
+		{
+			name: "check metrics with empty msgCategories",
+			fields: fields{
+				TestdataPath:  "../testdata/postqueue_output.txt",
+				MsgCategories: map[string]*regexp.Regexp{},
+			},
+			want: map[string]float64{
+				"queue": 12,
+			},
+		},
+		{
+			// If there are no matching rows in msgCategories, the metric will be 0.
+			name: "check metrics with no match msgCategories",
+			fields: fields{
+				TestdataPath: "../testdata/postqueue_output.txt",
+				MsgCategories: map[string]*regexp.Regexp{
+					"Connection timeout": regexp.MustCompile(`Connection timed out`),
+					"Dummy":              regexp.MustCompile(`Dummy`),
+				},
+			},
+			want: map[string]float64{
+				"Connection_timeout": 4,
+				"Dummy":              0,
+				"queue":              12,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
