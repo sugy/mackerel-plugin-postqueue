@@ -117,7 +117,13 @@ func Do() {
 	optPrefix := flag.String("metric-key-prefix", "", "Metric key prefix")
 	optDebug := flag.Bool("debug", false, "Debug log level")
 	optPath := flag.String("path", "/usr/sbin/postqueue", "Path to postqueue command")
+	optVersion := flag.Bool("version", false, "Show version")
 	flag.Parse()
+
+	if *optVersion {
+		showVersion()
+		os.Exit(0)
+	}
 
 	customFmt := new(log.TextFormatter)
 	customFmt.TimestampFormat = "2006-01-02 15:04:05"
