@@ -5,6 +5,10 @@ builds:
     goarch:
       - amd64
       - arm64
+    ldflags:
+      - -X github.com/sugy/mackerel-plugin-postqueue/mppostqueue.version={{.Version}}
+      - -X github.com/sugy/mackerel-plugin-postqueue/mppostqueue.commit={{.ShortCommit}}
+      - -X github.com/sugy/mackerel-plugin-postqueue/mppostqueue.date={{.Date}}
 archives:
   - format: zip
     name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
