@@ -72,6 +72,11 @@ func (p *PostqueuePlugin) FetchMetrics() (map[string]float64, error) {
 
 	// Initialize metric map
 	metrics := make(map[string]float64)
+	// Initialize metric map for Message categories
+	for category := range p.MsgCategories {
+		name := strings.Replace(category, " ", "_", -1)
+		metrics[name] = 0
+	}
 
 	// Read and classify output entries
 	scanner := bufio.NewScanner(strings.NewReader(p.PostQueueOutput))
