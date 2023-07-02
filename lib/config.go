@@ -7,6 +7,7 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
+// PostqueuePluginConfig is the configuration file format
 type PostqueuePluginConfig struct {
 	Prefix        string
 	PostQueuePath string
