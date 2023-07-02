@@ -117,6 +117,36 @@ func (p *PostqueuePlugin) runPostQueueCommand() (string, error) {
 	return stdout.String(), err
 }
 
+// LoadPluginConfig loads config file
+func (p *PostqueuePlugin) LoadPluginConfig(configFile string) error {
+	c := &PostqueuePluginConfig{}
+	// Load config file
+	err := c.LoadPluginConfig(configFile)
+	if err != nil {
+		return err
+	}
+
+	// Set config file values
+	if c.Prefix != "" {
+		p.Prefix = c.Prefix
+	}
+	if c.PostQueuePath != "" {
+		p.PostQueuePath = c.PostQueuePath
+	}
+
+	// Set config file values for Message categories
+	if c.MsgCategories != nil {
+		p.MsgCategories = make(map[string]*regexp.Regexp)
+		for category, regex := range c.MsgCategories {
+			if category != "" && regex != "" {
+				p.MsgCategories[category] = regexp.MustCompile(regex)
+			}
+		}
+	}
+
+	return nil
+}
+
 // Do the plugin
 func Do() {
 	optPrefix := flag.String("metric-key-prefix", "", "Metric key prefix")
@@ -145,31 +175,10 @@ func Do() {
 	p.PostQueueArgs = []string{"-p"}
 
 	if *optConfig != "" {
-		c := &PostqueuePluginConfig{}
-		// Load config file
-		err := c.LoadPluginConfig(*optConfig)
+		err := p.LoadPluginConfig(*optConfig)
 		if err != nil {
 			log.Errorf("Failed to load config file: %s", err)
 			os.Exit(1)
-		}
-
-		// Set config file values
-		if c.Prefix != "" {
-			p.Prefix = c.Prefix
-
-		}
-		if c.PostQueuePath != "" {
-			p.PostQueuePath = c.PostQueuePath
-		}
-
-		// Set config file values for Message categories
-		if c.MsgCategories != nil {
-			p.MsgCategories = make(map[string]*regexp.Regexp)
-			for category, regex := range c.MsgCategories {
-				if category != "" && regex != "" {
-					p.MsgCategories[category] = regexp.MustCompile(regex)
-				}
-			}
 		}
 	}
 
