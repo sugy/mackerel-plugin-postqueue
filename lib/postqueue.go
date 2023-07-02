@@ -123,6 +123,7 @@ func Do() {
 	optDebug := flag.Bool("debug", false, "Debug log level")
 	optPath := flag.String("path", "/usr/sbin/postqueue", "Path to postqueue command")
 	optVersion := flag.Bool("version", false, "Show version")
+	optConfig := flag.String("config", "", "Path to TOML format config file")
 	flag.Parse()
 
 	if *optVersion {
@@ -140,11 +141,49 @@ func Do() {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	plugin := mp.NewMackerelPlugin(&PostqueuePlugin{
-		Prefix:        *optPrefix,
-		PostQueuePath: *optPath,
-		PostQueueArgs: []string{"-p"},
-		MsgCategories: map[string]*regexp.Regexp{
+	p := &PostqueuePlugin{}
+	p.PostQueueArgs = []string{"-p"}
+
+	if *optConfig != "" {
+		c := &PostqueuePluginConfig{}
+		// Load config file
+		err := c.LoadPluginConfig(*optConfig)
+		if err != nil {
+			log.Errorf("Failed to load config file: %s", err)
+			os.Exit(1)
+		}
+
+		// Set config file values
+		if c.Prefix != "" {
+			p.Prefix = c.Prefix
+
+		}
+		if c.PostQueuePath != "" {
+			p.PostQueuePath = c.PostQueuePath
+		}
+
+		// Set config file values for Message categories
+		if c.MsgCategories != nil {
+			p.MsgCategories = make(map[string]*regexp.Regexp)
+			for category, regex := range c.MsgCategories {
+				if category != "" && regex != "" {
+					p.MsgCategories[category] = regexp.MustCompile(regex)
+				}
+			}
+		}
+	}
+
+	// Set command line values
+	if *optPrefix != "" {
+		p.Prefix = *optPrefix
+	}
+	if *optPath != "" {
+		p.PostQueuePath = *optPath
+	}
+
+	// Set default values for Message categories
+	if p.MsgCategories == nil {
+		p.MsgCategories = map[string]*regexp.Regexp{
 			"Connection timeout":     regexp.MustCompile(`Connection timed out`),
 			"Connection refused":     regexp.MustCompile(`Connection refused`),
 			"Helo command rejected":  regexp.MustCompile(`Helo command rejected: Host not found`),
@@ -155,7 +194,11 @@ func Do() {
 			"Over quota":             regexp.MustCompile(`The email account that you tried to reach is over quota`),
 			"Relay access denied":    regexp.MustCompile(`Relay access denied`),
 			// Add more log categories with corresponding regular expressions
-		},
-	})
+		}
+	}
+
+	log.Debug("Do (p): ", fmt.Sprintf("'%v'", p))
+
+	plugin := mp.NewMackerelPlugin(p)
 	plugin.Run()
 }
