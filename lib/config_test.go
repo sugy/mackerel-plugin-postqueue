@@ -44,11 +44,7 @@ func TestPostqueuePluginConfig_LoadPluginConfig(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := &PostqueuePluginConfig{
-				Prefix:        tt.fields.Prefix,
-				PostQueuePath: tt.fields.PostQueuePath,
-				MsgCategories: tt.fields.MsgCategories,
-			}
+			c := &PostqueuePluginConfig{}
 			if err := c.LoadPluginConfig(tt.args.configFile); (err != nil) != tt.wantErr {
 				t.Errorf("PostqueuePluginConfig.LoadPluginConfig() error = %v, wantErr %v", err, tt.wantErr)
 			}

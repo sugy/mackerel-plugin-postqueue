@@ -152,3 +152,59 @@ func TestPostqueuePlugin_FetchMetrics(t *testing.T) {
 		})
 	}
 }
+
+func TestPostqueuePlugin_LoadPluginConfig(t *testing.T) {
+	type fields struct {
+		Prefix          string
+		PostQueuePath   string
+		PostQueueArgs   []string
+		PostQueueOutput string
+		MsgCategories   map[string]*regexp.Regexp
+	}
+	type args struct {
+		configFile string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+		want    *PostqueuePlugin
+	}{
+		{
+			name:   "check config",
+			fields: fields{},
+			args: args{
+				configFile: "../testdata/config.toml",
+			},
+			wantErr: false,
+			want: &PostqueuePlugin{
+				Prefix:        "postfix",
+				PostQueuePath: "/usr/bin/postqueue",
+				MsgCategories: map[string]*regexp.Regexp{
+					"Connection timeout":     regexp.MustCompile(`Connection timed out`),
+					"Connection refused":     regexp.MustCompile(`Connection refused`),
+					"Helo command rejected":  regexp.MustCompile(`Helo command rejected: Host not found`),
+					"Host not found":         regexp.MustCompile(`type=MX: Host not found, try again`),
+					"Mailbox full":           regexp.MustCompile(`Mailbox full`),
+					"Network is unreachable": regexp.MustCompile(`Network is unreachable`),
+					"No route to host":       regexp.MustCompile(`No route to host`),
+					"Over quota":             regexp.MustCompile(`The email account that you tried to reach is over quota`),
+					"Relay access denied":    regexp.MustCompile(`Relay access denied`),
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &PostqueuePlugin{}
+			err := p.LoadPluginConfig(tt.args.configFile)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("PostqueuePlugin.LoadPluginConfig() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if !reflect.DeepEqual(p, tt.want) {
+				t.Errorf("PostqueuePlugin.LoadPluginConfig() = %v, want %v", p, tt.want)
+			}
+		})
+	}
+}
