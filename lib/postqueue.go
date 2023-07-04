@@ -117,11 +117,11 @@ func (p *PostqueuePlugin) runPostQueueCommand() (string, error) {
 	return stdout.String(), err
 }
 
-// LoadPluginConfig loads config file
-func (p *PostqueuePlugin) LoadPluginConfig(configFile string) error {
+// loadPluginConfig loads config file
+func (p *PostqueuePlugin) loadPluginConfig(configFile string) error {
 	c := &PostqueuePluginConfig{}
 	// Load config file
-	err := c.LoadPluginConfig(configFile)
+	err := c.loadPluginConfig(configFile)
 	if err != nil {
 		return err
 	}
@@ -136,15 +136,37 @@ func (p *PostqueuePlugin) LoadPluginConfig(configFile string) error {
 
 	// Set config file values for Message categories
 	if c.MsgCategories != nil {
-		p.MsgCategories = make(map[string]*regexp.Regexp)
-		for category, regex := range c.MsgCategories {
-			if category != "" && regex != "" {
-				p.MsgCategories[category] = regexp.MustCompile(regex)
-			}
-		}
+		p.MsgCategories = getMsgCategories(c.MsgCategories)
 	}
 
 	return nil
+}
+
+// getMsgCategories returns the map of message categories
+func getMsgCategories(m map[string]string) map[string]*regexp.Regexp {
+	msgCategories := make(map[string]*regexp.Regexp)
+	for category, regex := range m {
+		if category != "" && regex != "" {
+			msgCategories[category] = regexp.MustCompile(regex)
+		}
+	}
+	return msgCategories
+}
+
+func (p *PostqueuePlugin) validate() error {
+	if p.PostQueuePath == "" {
+		return fmt.Errorf("postqueue path is required")
+	}
+	if len(p.MsgCategories) == 0 {
+		return fmt.Errorf("message categories is required")
+	}
+	return nil
+}
+
+// Generate config file template
+func generateConfig() {
+	c := &PostqueuePluginConfig{}
+	c.generateConfig()
 }
 
 // Do the plugin
@@ -154,10 +176,16 @@ func Do() {
 	optPath := flag.String("path", "/usr/sbin/postqueue", "Path to postqueue command")
 	optVersion := flag.Bool("version", false, "Show version")
 	optConfig := flag.String("config", "", "Path to TOML format config file")
+	optGenerateConfig := flag.Bool("generate-config", false, "Generate config file template")
 	flag.Parse()
 
 	if *optVersion {
 		showVersion()
+		os.Exit(0)
+	}
+
+	if *optGenerateConfig {
+		generateConfig()
 		os.Exit(0)
 	}
 
@@ -175,7 +203,7 @@ func Do() {
 	p.PostQueueArgs = []string{"-p"}
 
 	if *optConfig != "" {
-		err := p.LoadPluginConfig(*optConfig)
+		err := p.loadPluginConfig(*optConfig)
 		if err != nil {
 			log.Errorf("Failed to load config file: %s", err)
 			os.Exit(1)
@@ -192,21 +220,16 @@ func Do() {
 
 	// Set default values for Message categories
 	if p.MsgCategories == nil {
-		p.MsgCategories = map[string]*regexp.Regexp{
-			"Connection timeout":     regexp.MustCompile(`Connection timed out`),
-			"Connection refused":     regexp.MustCompile(`Connection refused`),
-			"Helo command rejected":  regexp.MustCompile(`Helo command rejected: Host not found`),
-			"Host not found":         regexp.MustCompile(`type=MX: Host not found, try again`),
-			"Mailbox full":           regexp.MustCompile(`Mailbox full`),
-			"Network is unreachable": regexp.MustCompile(`Network is unreachable`),
-			"No route to host":       regexp.MustCompile(`No route to host`),
-			"Over quota":             regexp.MustCompile(`The email account that you tried to reach is over quota`),
-			"Relay access denied":    regexp.MustCompile(`Relay access denied`),
-			// Add more log categories with corresponding regular expressions
-		}
+		p.MsgCategories = getMsgCategories(getDefaultMsgCategories())
 	}
 
 	log.Debug("Do (p): ", fmt.Sprintf("'%v'", p))
+
+	err := p.validate()
+	if err != nil {
+		log.Errorf("Failed to validate config: %s", err)
+		os.Exit(1)
+	}
 
 	plugin := mp.NewMackerelPlugin(p)
 	plugin.Run()

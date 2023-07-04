@@ -2,7 +2,7 @@ package mppostqueue
 
 import "testing"
 
-func TestPostqueuePluginConfig_LoadPluginConfig(t *testing.T) {
+func TestPostqueuePluginConfig_loadPluginConfig(t *testing.T) {
 	type fields struct {
 		Prefix        string
 		PostQueuePath string
@@ -45,8 +45,8 @@ func TestPostqueuePluginConfig_LoadPluginConfig(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &PostqueuePluginConfig{}
-			if err := c.LoadPluginConfig(tt.args.configFile); (err != nil) != tt.wantErr {
-				t.Errorf("PostqueuePluginConfig.LoadPluginConfig() error = %v, wantErr %v", err, tt.wantErr)
+			if err := c.loadPluginConfig(tt.args.configFile); (err != nil) != tt.wantErr {
+				t.Errorf("PostqueuePluginConfig.loadPluginConfig() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
