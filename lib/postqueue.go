@@ -117,11 +117,11 @@ func (p *PostqueuePlugin) runPostQueueCommand() (string, error) {
 	return stdout.String(), err
 }
 
-// LoadPluginConfig loads config file
-func (p *PostqueuePlugin) LoadPluginConfig(configFile string) error {
+// loadPluginConfig loads config file
+func (p *PostqueuePlugin) loadPluginConfig(configFile string) error {
 	c := &PostqueuePluginConfig{}
 	// Load config file
-	err := c.LoadPluginConfig(configFile)
+	err := c.loadPluginConfig(configFile)
 	if err != nil {
 		return err
 	}
@@ -175,7 +175,7 @@ func Do() {
 	p.PostQueueArgs = []string{"-p"}
 
 	if *optConfig != "" {
-		err := p.LoadPluginConfig(*optConfig)
+		err := p.loadPluginConfig(*optConfig)
 		if err != nil {
 			log.Errorf("Failed to load config file: %s", err)
 			os.Exit(1)

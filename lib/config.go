@@ -14,8 +14,8 @@ type PostqueuePluginConfig struct {
 	MsgCategories map[string]string
 }
 
-// LoadPluginConfig loads the plugin configuration file
-func (c *PostqueuePluginConfig) LoadPluginConfig(configFile string) error {
+// loadPluginConfig loads the plugin configuration file
+func (c *PostqueuePluginConfig) loadPluginConfig(configFile string) error {
 	contents, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		return fmt.Errorf("an error occurred while loading the file: %w", err)
