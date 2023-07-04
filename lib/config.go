@@ -28,3 +28,42 @@ func (c *PostqueuePluginConfig) loadPluginConfig(configFile string) error {
 
 	return nil
 }
+
+// Generate config file template
+func (c *PostqueuePluginConfig) generateConfig() {
+	c.Prefix = "postfix"
+	c.PostQueuePath = "/usr/sbin/postqueue"
+
+	c.MsgCategories = getDefaultMsgCategories()
+
+	// Output config file template
+	fmt.Println(`# Postqueue plugin config file`)
+	fmt.Println(`# Prefix for metrics
+Prefix = "` + c.Prefix + `"
+`)
+	fmt.Println(`# Path to postqueue command
+PostQueuePath = "` + c.PostQueuePath + `"
+`)
+	fmt.Println(`# Message categories
+# Format: <category> = "<regex>"
+[MsgCategories]`)
+	for category, regex := range c.MsgCategories {
+		fmt.Println(`  "` + category + `" = "` + regex + `"`)
+	}
+}
+
+// Set default MsgCategories
+func getDefaultMsgCategories() map[string]string {
+	return map[string]string{
+		"Connection timeout":     "Connection timed out",
+		"Connection refused":     "Connection refused",
+		"Helo command rejected":  "Helo command rejected: Host not found",
+		"Host not found":         "type=MX: Host not found, try again",
+		"Mailbox full":           "Mailbox full",
+		"Network is unreachable": "Network is unreachable",
+		"No route to host":       "No route to host",
+		"Over quota":             "The email account that you tried to reach is over quota",
+		"Relay access denied":    "Relay access denied",
+		// Add more log categories with corresponding regular expressions
+	}
+}
