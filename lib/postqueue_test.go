@@ -153,7 +153,7 @@ func TestPostqueuePlugin_FetchMetrics(t *testing.T) {
 	}
 }
 
-func TestPostqueuePlugin_LoadPluginConfig(t *testing.T) {
+func TestPostqueuePlugin_loadPluginConfig(t *testing.T) {
 	type fields struct {
 		Prefix          string
 		PostQueuePath   string
@@ -198,12 +198,12 @@ func TestPostqueuePlugin_LoadPluginConfig(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &PostqueuePlugin{}
-			err := p.LoadPluginConfig(tt.args.configFile)
+			err := p.loadPluginConfig(tt.args.configFile)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("PostqueuePlugin.LoadPluginConfig() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("PostqueuePlugin.loadPluginConfig() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if !reflect.DeepEqual(p, tt.want) {
-				t.Errorf("PostqueuePlugin.LoadPluginConfig() = %v, want %v", p, tt.want)
+				t.Errorf("PostqueuePlugin.loadPluginConfig() = %v, want %v", p, tt.want)
 			}
 		})
 	}
