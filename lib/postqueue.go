@@ -87,7 +87,7 @@ func (p *PostqueuePlugin) FetchMetrics() (map[string]float64, error) {
 				log.Debug("FetchMetrics (line): ", fmt.Sprintf("'%v'", line))
 				name := strings.Replace(category, " ", "_", -1)
 				metrics[name] = metrics[name] + 1
-				break
+				// not break here, because one line may match multiple categories
 			}
 		}
 		// line の先頭が 10桁以上の16進数であれば、それはキューIDとみなす
