@@ -2,8 +2,8 @@ Prefix = "postfix"
 PostQueuePath = "/usr/bin/postqueue"
 
 [MsgCategories]
-  "Connection timeout"     = "Connection timed out"
   "Connection refused"     = "Connection refused"
+  "Connection timeout"     = "Connection timed out"
   "Helo command rejected"  = "Helo command rejected: Host not found"
   "Host not found"         = "type=MX: Host not found, try again"
   "Mailbox full"           = "Mailbox full"

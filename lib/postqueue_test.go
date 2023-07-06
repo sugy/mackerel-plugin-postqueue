@@ -85,8 +85,8 @@ func TestPostqueuePlugin_FetchMetrics(t *testing.T) {
 			fields: fields{
 				TestdataPath: "../testdata/postqueue_output.txt",
 				MsgCategories: map[string]*regexp.Regexp{
-					"Connection timeout":    regexp.MustCompile(`Connection timed out`),
 					"Connection refused":    regexp.MustCompile(`Connection refused`),
+					"Connection timeout":    regexp.MustCompile(`Connection timed out`),
 					"Helo command rejected": regexp.MustCompile(`Helo command rejected: Host not found`),
 					"Over quota":            regexp.MustCompile(`The email account that you tried to reach is over quota`),
 				},
@@ -182,8 +182,8 @@ func TestPostqueuePlugin_loadPluginConfig(t *testing.T) {
 				Prefix:        "postfix",
 				PostQueuePath: "/usr/bin/postqueue",
 				MsgCategories: map[string]*regexp.Regexp{
-					"Connection timeout":     regexp.MustCompile(`Connection timed out`),
 					"Connection refused":     regexp.MustCompile(`Connection refused`),
+					"Connection timeout":     regexp.MustCompile(`Connection timed out`),
 					"Helo command rejected":  regexp.MustCompile(`Helo command rejected: Host not found`),
 					"Host not found":         regexp.MustCompile(`type=MX: Host not found, try again`),
 					"Mailbox full":           regexp.MustCompile(`Mailbox full`),

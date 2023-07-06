@@ -3,8 +3,10 @@ package mppostqueue
 import (
 	"fmt"
 	"io/ioutil"
+	"sort"
 
 	"github.com/BurntSushi/toml"
+	log "github.com/sirupsen/logrus"
 )
 
 // PostqueuePluginConfig is the configuration file format
@@ -35,6 +37,9 @@ func (c *PostqueuePluginConfig) generateConfig() {
 	c.PostQueuePath = "/usr/sbin/postqueue"
 
 	c.MsgCategories = getDefaultMsgCategories()
+	keys := c.getMsgCategoriesKeys()
+	sort.Strings(keys)
+	log.Debug("generateConfig: MsgCategories keys: ", keys)
 
 	// Output config file template
 	fmt.Println(`# Postqueue plugin config file`)
@@ -47,16 +52,25 @@ PostQueuePath = "` + c.PostQueuePath + `"
 	fmt.Println(`# Message categories
 # Format: <category> = "<regex>"
 [MsgCategories]`)
-	for category, regex := range c.MsgCategories {
-		fmt.Println(`  "` + category + `" = "` + regex + `"`)
+	for k := range keys {
+		fmt.Println(`  "` + keys[k] + `" = "` + c.MsgCategories[keys[k]] + `"`)
 	}
+}
+
+// Get MsgCategories keys
+func (c *PostqueuePluginConfig) getMsgCategoriesKeys() []string {
+	keys := make([]string, 0, len(c.MsgCategories))
+	for k := range c.MsgCategories {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
 // Set default MsgCategories
 func getDefaultMsgCategories() map[string]string {
 	return map[string]string{
-		"Connection timeout":     "Connection timed out",
 		"Connection refused":     "Connection refused",
+		"Connection timeout":     "Connection timed out",
 		"Helo command rejected":  "Helo command rejected: Host not found",
 		"Host not found":         "type=MX: Host not found, try again",
 		"Mailbox full":           "Mailbox full",
