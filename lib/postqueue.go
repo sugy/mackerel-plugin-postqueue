@@ -166,7 +166,10 @@ func (p *PostqueuePlugin) validate() error {
 // Generate config file template
 func generateConfig() {
 	c := &PostqueuePluginConfig{}
-	c.generateConfig()
+	output := c.generateConfig()
+	for _, line := range output {
+		fmt.Println(line)
+	}
 }
 
 // Do the plugin

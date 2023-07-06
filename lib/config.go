@@ -32,7 +32,7 @@ func (c *PostqueuePluginConfig) loadPluginConfig(configFile string) error {
 }
 
 // Generate config file template
-func (c *PostqueuePluginConfig) generateConfig() {
+func (c *PostqueuePluginConfig) generateConfig() []string {
 	c.Prefix = "postfix"
 	c.PostQueuePath = "/usr/sbin/postqueue"
 
@@ -41,20 +41,26 @@ func (c *PostqueuePluginConfig) generateConfig() {
 	sort.Strings(keys)
 	log.Debug("generateConfig: MsgCategories keys: ", keys)
 
+	var result []string
+	result = append(result, `# Postqueue plugin config file`)
+
 	// Output config file template
-	fmt.Println(`# Postqueue plugin config file`)
-	fmt.Println(`# Prefix for metrics
-Prefix = "` + c.Prefix + `"
-`)
-	fmt.Println(`# Path to postqueue command
-PostQueuePath = "` + c.PostQueuePath + `"
-`)
-	fmt.Println(`# Message categories
-# Format: <category> = "<regex>"
-[MsgCategories]`)
+	result = append(result, `# Prefix for metrics`)
+	result = append(result, `Prefix = "`+c.Prefix+`"`)
+	result = append(result, ``)
+
+	result = append(result, `# Path to postqueue command`)
+	result = append(result, `PostQueuePath = "`+c.PostQueuePath+`"`)
+	result = append(result, ``)
+
+	result = append(result, `# Message categories`)
+	result = append(result, `# Format: <category> = "<regex>"`)
+	result = append(result, `[MsgCategories]`)
 	for k := range keys {
-		fmt.Println(`  "` + keys[k] + `" = "` + c.MsgCategories[keys[k]] + `"`)
+		result = append(result, `  "`+keys[k]+`" = "`+c.MsgCategories[keys[k]]+`"`)
 	}
+
+	return result
 }
 
 // Get MsgCategories keys
