@@ -179,16 +179,6 @@ func Do() {
 	optGenerateConfig := flag.Bool("generate-config", false, "Generate config file template")
 	flag.Parse()
 
-	if *optVersion {
-		showVersion()
-		os.Exit(0)
-	}
-
-	if *optGenerateConfig {
-		generateConfig()
-		os.Exit(0)
-	}
-
 	customFmt := new(log.TextFormatter)
 	customFmt.TimestampFormat = "2006-01-02 15:04:05"
 	customFmt.FullTimestamp = true
@@ -197,6 +187,16 @@ func Do() {
 
 	if *optDebug {
 		log.SetLevel(log.DebugLevel)
+	}
+
+	if *optVersion {
+		showVersion()
+		os.Exit(0)
+	}
+
+	if *optGenerateConfig {
+		generateConfig()
+		os.Exit(0)
 	}
 
 	p := &PostqueuePlugin{}
