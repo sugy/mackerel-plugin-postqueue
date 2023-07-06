@@ -87,7 +87,7 @@ func (p *PostqueuePlugin) FetchMetrics() (map[string]float64, error) {
 				log.Debug("FetchMetrics (line): ", fmt.Sprintf("'%v'", line))
 				name := strings.Replace(category, " ", "_", -1)
 				metrics[name] = metrics[name] + 1
-				break
+				// not break here, because one line may match multiple categories
 			}
 		}
 		// line の先頭が 10桁以上の16進数であれば、それはキューIDとみなす
@@ -166,7 +166,10 @@ func (p *PostqueuePlugin) validate() error {
 // Generate config file template
 func generateConfig() {
 	c := &PostqueuePluginConfig{}
-	c.generateConfig()
+	output := c.generateConfig()
+	for _, line := range output {
+		fmt.Println(line)
+	}
 }
 
 // Do the plugin
@@ -179,16 +182,6 @@ func Do() {
 	optGenerateConfig := flag.Bool("generate-config", false, "Generate config file template")
 	flag.Parse()
 
-	if *optVersion {
-		showVersion()
-		os.Exit(0)
-	}
-
-	if *optGenerateConfig {
-		generateConfig()
-		os.Exit(0)
-	}
-
 	customFmt := new(log.TextFormatter)
 	customFmt.TimestampFormat = "2006-01-02 15:04:05"
 	customFmt.FullTimestamp = true
@@ -197,6 +190,16 @@ func Do() {
 
 	if *optDebug {
 		log.SetLevel(log.DebugLevel)
+	}
+
+	if *optVersion {
+		showVersion()
+		os.Exit(0)
+	}
+
+	if *optGenerateConfig {
+		generateConfig()
+		os.Exit(0)
 	}
 
 	p := &PostqueuePlugin{}

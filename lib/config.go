@@ -3,8 +3,10 @@ package mppostqueue
 import (
 	"fmt"
 	"io/ioutil"
+	"sort"
 
 	"github.com/BurntSushi/toml"
+	log "github.com/sirupsen/logrus"
 )
 
 // PostqueuePluginConfig is the configuration file format
@@ -30,33 +32,51 @@ func (c *PostqueuePluginConfig) loadPluginConfig(configFile string) error {
 }
 
 // Generate config file template
-func (c *PostqueuePluginConfig) generateConfig() {
+func (c *PostqueuePluginConfig) generateConfig() []string {
 	c.Prefix = "postfix"
 	c.PostQueuePath = "/usr/sbin/postqueue"
 
 	c.MsgCategories = getDefaultMsgCategories()
+	keys := c.getMsgCategoriesKeys()
+	sort.Strings(keys)
+	log.Debug("generateConfig: MsgCategories keys: ", keys)
+
+	var result []string
+	result = append(result, `# Postqueue plugin config file`)
 
 	// Output config file template
-	fmt.Println(`# Postqueue plugin config file`)
-	fmt.Println(`# Prefix for metrics
-Prefix = "` + c.Prefix + `"
-`)
-	fmt.Println(`# Path to postqueue command
-PostQueuePath = "` + c.PostQueuePath + `"
-`)
-	fmt.Println(`# Message categories
-# Format: <category> = "<regex>"
-[MsgCategories]`)
-	for category, regex := range c.MsgCategories {
-		fmt.Println(`  "` + category + `" = "` + regex + `"`)
+	result = append(result, `# Prefix for metrics`)
+	result = append(result, `Prefix = "`+c.Prefix+`"`)
+	result = append(result, ``)
+
+	result = append(result, `# Path to postqueue command`)
+	result = append(result, `PostQueuePath = "`+c.PostQueuePath+`"`)
+	result = append(result, ``)
+
+	result = append(result, `# Message categories`)
+	result = append(result, `# Format: <category> = "<regex>"`)
+	result = append(result, `[MsgCategories]`)
+	for k := range keys {
+		result = append(result, `  "`+keys[k]+`" = "`+c.MsgCategories[keys[k]]+`"`)
 	}
+
+	return result
+}
+
+// Get MsgCategories keys
+func (c *PostqueuePluginConfig) getMsgCategoriesKeys() []string {
+	keys := make([]string, 0, len(c.MsgCategories))
+	for k := range c.MsgCategories {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
 // Set default MsgCategories
 func getDefaultMsgCategories() map[string]string {
 	return map[string]string{
-		"Connection timeout":     "Connection timed out",
 		"Connection refused":     "Connection refused",
+		"Connection timeout":     "Connection timed out",
 		"Helo command rejected":  "Helo command rejected: Host not found",
 		"Host not found":         "type=MX: Host not found, try again",
 		"Mailbox full":           "Mailbox full",
