@@ -2,7 +2,7 @@ package mppostqueue
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"sort"
 
 	"github.com/BurntSushi/toml"
@@ -18,7 +18,7 @@ type PostqueuePluginConfig struct {
 
 // loadPluginConfig loads the plugin configuration file
 func (c *PostqueuePluginConfig) loadPluginConfig(configFile string) error {
-	contents, err := ioutil.ReadFile(configFile)
+	contents, err := os.ReadFile(configFile)
 	if err != nil {
 		return fmt.Errorf("an error occurred while loading the file: %w", err)
 	}
